@@ -70,4 +70,15 @@ router.post('/', (req, res) => {
    res.status(201).send("The user " + firstName + ' ' + lastName + " has been added!");
 });
 
+router.put('/', (req, res) => {
+    const id = req.user.id;
+    const user = users.find((user) => user.id === id);
+    const { firstName, lastName } = req.body;
+
+    if(firstName?.trim()) { user.firstName = firstName };
+    if(lastName?.trim()) { user.lastName = lastName };
+
+    res.status(202).send("The user with id: " + id + ", has been updated!");
+});
+
 module.exports = {router, users};

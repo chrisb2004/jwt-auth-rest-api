@@ -5,6 +5,6 @@ const router = express.Router();
 
 const { router: userRoutes } = require('./routes/users'); // import all routes from users.js
 
-router.use('/users', userRoutes); // adds '/users' prefix to the routes from 'users.js'
+router.use('/', userRoutes); // adds '/users' prefix to the routes from 'users.js'
 
 module.exports = router;

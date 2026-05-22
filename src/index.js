@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const { users } = require('./routes/users');
 const routes = require('./routes')
@@ -24,7 +25,7 @@ NOTE: since express middlewares are secuential, the 'use' for specific routes is
 
 */
 
-app.use('/user', (req, res, next) => {
+app.use('/users', (req, res, next) => {
     let authHeader = req.headers['authorization'];
     console.log('authHeader:', authHeader);
 
@@ -57,7 +58,7 @@ app.use('/user', (req, res, next) => {
     });
 });
 
-app.use('/user', routes);
+app.use('/users', routes);
 
 // Login middleware
 
@@ -70,19 +71,52 @@ app.use('/user', routes);
 
 */
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    const foundUser = users.find((user) => user.email === email && user.password === password);
+    const foundUser = users.find((user) => user.email === email);
 
     if(!foundUser) {
         return res.status(404).json({message: 'User not found'});
     }
 
-    let accessToken = jwt.sign({ data: email }, process.env.JWT_SECRET, { expiresIn: 60 * 60 });
+    const passwordMatch = await bcrypt.compare(password, foundUser.password);
+
+    if (!passwordMatch) {
+        return res.status(403).json({ message: 'Invalid credentials' });
+    }
+
+    let accessToken = jwt.sign({ id: foundUser.id, email: foundUser.email }, process.env.JWT_SECRET, { expiresIn: 60 * 60 });
     
     // Just send it back, don't store it anywhere on the server
     return res.status(200).json({ accessToken });
+});
+
+app.post('/register', async (req, res) => {
+    const { firstName, lastName, email, password} = req.body;
+
+    if (!firstName || !lastName || !email || !password) {
+        return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const id = users.length + 1;
+    const foundUser = users.find((user) => user.email === email);
+
+    if(foundUser) {
+        return res.status(403).json({message: 'User already exists.'});
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    users.push({
+        'firstName': firstName,
+        'lastName': lastName, 
+        'id': id,
+        'email': email,
+        'password': hashedPassword
+    });
+    
+    return res.status(201).send("User successfuly registered");
 });
 
 app.listen(process.env.PORT, () => console.log('App is listenging to port: ' + process.env.PORT));
