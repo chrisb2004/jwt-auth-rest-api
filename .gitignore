@@ -1,4 +1,4 @@
 node_modules        # exact folder name
 .env                # exact file name (usually contains secrets/passwords)
 *.log               # wildcard - ignores ANY file ending in .log
-dist/               # the / means only match folders, not files named "dist"
+dist/               # the / means only match folders, not files named "dist".DS_Store
