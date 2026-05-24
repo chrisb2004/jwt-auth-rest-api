@@ -75,7 +75,7 @@ router.put('/', (req, res) => {
     const user = users.find((user) => user.id === id);
     const { firstName, lastName } = req.body;
 
-    if(firstName?.trim()) { user.firstName = firstName };
+    if(firstName?.trim()) { user.firstName = firstName }; // The '?.trim()' is used so if someone sends a body without firstName at all, it returns undefined instead of crashing
     if(lastName?.trim()) { user.lastName = lastName };
 
     res.status(202).send("The user with id: " + id + ", has been updated!");
