@@ -22,7 +22,6 @@ app.use(express.json());
 
 NOTE: since express middlewares are secuential, the 'use' for specific routes is called after the auth middleware
 
-
 */
 
 app.use('/users', (req, res, next) => {
@@ -95,7 +94,7 @@ app.post('/login', async (req, res) => {
 app.post('/register', async (req, res) => {
     const { firstName, lastName, email, password} = req.body;
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !password?.trim()) { // The '?.trim()' is used so if someone sends a body without firstName at all, it returns undefined instead of crashing
         return res.status(400).json({ message: 'All fields are required' });
     }
 
